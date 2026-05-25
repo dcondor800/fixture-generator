@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Copa Mundial Repsol — Generador de Fixtures</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0a1628; color: #fff; min-height: 100vh; padding: 24px; }
+  h1 { text-align: center; font-size: 1.6rem; margin-bottom: 6px; }
+  h1 span { color: #ff6b00; }
+  .subtitle { text-align: center; color: #8899bb; font-size: 0.85rem; margin-bottom: 28px; }
+  .tabs { display: flex; gap: 8px; justify-content: center; margin-bottom: 28px; flex-wrap: wrap; }
+  .tab-btn { background: #132040; color: #aabbcc; border: 1px solid #1e3060; border-radius: 8px; padding: 10px 20px; cursor: pointer; font-size: 0.88rem; transition: all 0.2s; }
+  .tab-btn:hover { background: #1e3060; color: #fff; }
+  .tab-btn.active { background: #ff6b00; border-color: #ff6b00; color: #fff; font-weight: 600; }
+  .panel { display: none; } .panel.active { display: block; }
+  .panel-inner { display: flex; gap: 28px; align-items: flex-start; flex-wrap: wrap; }
+  .form-card { background: #132040; border: 1px solid #1e3060; border-radius: 12px; padding: 24px; min-width: 280px; flex: 0 0 300px; }
+  .form-card h2 { font-size: 1rem; margin-bottom: 18px; color: #ff6b00; text-transform: uppercase; letter-spacing: 0.05em; }
+  .section-label { font-size: 0.75rem; color: #8899bb; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; margin-top: 16px; }
+  .field { margin-bottom: 10px; }
+  .field label { display: block; font-size: 0.78rem; color: #aabbcc; margin-bottom: 4px; }
+  .field input { width: 100%; background: #0d1c38; border: 1px solid #1e3060; border-radius: 6px; color: #fff; padding: 8px 10px; font-size: 0.88rem; }
+  .field input:focus { outline: none; border-color: #ff6b00; }
+  .field input::placeholder { color: #445577; }
+  .btn-download { width: 100%; margin-top: 20px; background: transparent; color: #ff6b00; border: 1px solid #ff6b00; border-radius: 8px; padding: 11px; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
+  .btn-download:hover { background: #ff6b00; color: #fff; }
+  .preview-wrap { flex: 1; min-width: 300px; }
+  .preview-wrap h2 { font-size: 0.85rem; color: #8899bb; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+  .canvas-container { border-radius: 10px; overflow: hidden; border: 1px solid #1e3060; line-height: 0; }
+  canvas { max-width: 100%; display: block; }
+  .hint { font-size: 0.75rem; color: #556688; margin-top: 8px; text-align: center; }
+  hr.sep { border: none; border-top: 1px solid #1e3060; margin: 14px 0; }
+</style>
+</head>
+<body>
+<h1>Copa Mundial <span>Repsol</span></h1>
+<p class="subtitle">Completa los ganadores para generar la Fecha 3 de cada fixture</p>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab(event,'futbol-masc')">Fútbol Masculino</button>
+  <button class="tab-btn" onclick="switchTab(event,'voley')">Vóley Mixto</button>
+  <button class="tab-btn" onclick="switchTab(event,'padel')">Pádel</button>
+  <button class="tab-btn" onclick="switchTab(event,'futbol-fem')">Fútbol Femenino</button>
+</div>
+
+<!-- FÚTBOL MASCULINO -->
+<div class="panel active" id="panel-futbol-masc">
+  <div class="panel-inner">
+    <div class="form-card">
+      <h2>Fútbol Masculino — Fecha 3</h2>
+      <div class="section-label">Semifinales 7:00</div>
+      <div class="field"><label>Campo 1 — Ganador Grupo A</label><input type="text" id="fm-ga" placeholder="Ej: Brasil" oninput="renderFM()"></div>
+      <div class="field"><label>Campo 1 — Ganador Grupo B</label><input type="text" id="fm-gb" placeholder="Ej: España" oninput="renderFM()"></div>
+      <div class="field"><label>Campo 3 — Ganador Grupo C</label><input type="text" id="fm-gc" placeholder="Ej: Argentina" oninput="renderFM()"></div>
+      <div class="field"><label>Campo 3 — Mejor 3er puesto</label><input type="text" id="fm-mp" placeholder="Ej: Portugal" oninput="renderFM()"></div>
+      <hr class="sep">
+      <div class="section-label">Final 7:50 — Campo 2</div>
+      <div class="field"><label>G1 (ganador semifinal 1)</label><input type="text" id="fm-g1" placeholder="Ej: Brasil" oninput="renderFM()"></div>
+      <div class="field"><label>G2 (ganador semifinal 2)</label><input type="text" id="fm-g2" placeholder="Ej: Argentina" oninput="renderFM()"></div>
+      <button class="btn-download" onclick="dl('canvas-fm','Fixture_Futbol_Masculino_Fecha3.jpg')">Descargar JPG</button>
+    </div>
+    <div class="preview-wrap">
+      <h2>Vista previa</h2>
+      <div class="canvas-container"><canvas id="canvas-fm"></canvas></div>
+      <p class="hint">Actualiza en tiempo real mientras escribes</p>
+    </div>
+  </div>
+</div>
+
+<!-- VÓLEY MIXTO -->
+<div class="panel" id="panel-voley">
+  <div class="panel-inner">
+    <div class="form-card">
+      <h2>Vóley Mixto — Fecha 3</h2>
+      <div class="section-label">Semifinales 7:00</div>
+      <div class="field"><label>Campo 1 — 1° Grupo A</label><input type="text" id="vl-1a" placeholder="Ej: EE.UU" oninput="renderVL()"></div>
+      <div class="field"><label>Campo 1 — 2° Grupo B</label><input type="text" id="vl-2b" placeholder="Ej: Croacia" oninput="renderVL()"></div>
+      <div class="field"><label>Campo 2 — 1° Grupo B</label><input type="text" id="vl-1b" placeholder="Ej: Perú" oninput="renderVL()"></div>
+      <div class="field"><label>Campo 2 — 2° Grupo A</label><input type="text" id="vl-2a" placeholder="Ej: Japón" oninput="renderVL()"></div>
+      <hr class="sep">
+      <div class="section-label">Final</div>
+      <div class="field"><label>F1 (ganador semifinal 1)</label><input type="text" id="vl-f1" placeholder="Ej: EE.UU" oninput="renderVL()"></div>
+      <div class="field"><label>F2 (ganador semifinal 2)</label><input type="text" id="vl-f2" placeholder="Ej: Perú" oninput="renderVL()"></div>
+      <button class="btn-download" onclick="dl('canvas-vl','Fixture_Voley_Mixto_Fecha3.jpg')">Descargar JPG</button>
+    </div>
+    <div class="preview-wrap">
+      <h2>Vista previa</h2>
+      <div class="canvas-container"><canvas id="canvas-vl"></canvas></div>
+      <p class="hint">Actualiza en tiempo real mientras escribes</p>
+    </div>
+  </div>
+</div>
+
+<!-- PÁDEL -->
+<div class="panel" id="panel-padel">
+  <div class="panel-inner">
+    <div class="form-card">
+      <h2>Pádel — Fecha 3</h2>
+      <div class="section-label">Semifinales 7:00</div>
+      <div class="field"><label>Campo 1 — 1° Grupo A</label><input type="text" id="pd-1a" placeholder="Ej: Arabia S." oninput="renderPD()"></div>
+      <div class="field"><label>Campo 1 — 2° Grupo B</label><input type="text" id="pd-2b" placeholder="Ej: Egipto" oninput="renderPD()"></div>
+      <div class="field"><label>Campo 2 — 1° Grupo B</label><input type="text" id="pd-1b" placeholder="Ej: Canadá" oninput="renderPD()"></div>
+      <div class="field"><label>Campo 2 — 2° Grupo A</label><input type="text" id="pd-2a" placeholder="Ej: Paraguay" oninput="renderPD()"></div>
+      <hr class="sep">
+      <div class="section-label">Final</div>
+      <div class="field"><label>F1 (ganador semifinal 1)</label><input type="text" id="pd-f1" placeholder="Ej: Arabia S." oninput="renderPD()"></div>
+      <div class="field"><label>F2 (ganador semifinal 2)</label><input type="text" id="pd-f2" placeholder="Ej: Canadá" oninput="renderPD()"></div>
+      <button class="btn-download" onclick="dl('canvas-pd','Fixture_Padel_Fecha3.jpg')">Descargar JPG</button>
+    </div>
+    <div class="preview-wrap">
+      <h2>Vista previa</h2>
+      <div class="canvas-container"><canvas id="canvas-pd"></canvas></div>
+      <p class="hint">Actualiza en tiempo real mientras escribes</p>
+    </div>
+  </div>
+</div>
+
+<!-- FÚTBOL FEMENINO -->
+<div class="panel" id="panel-futbol-fem">
+  <div class="panel-inner">
+    <div class="form-card">
+      <h2>Fútbol Femenino — Fecha 3</h2>
+      <div class="section-label">Final 7:00 — Campo 2</div>
+      <div class="field"><label>1° lugar del grupo</label><input type="text" id="ff-1" placeholder="Ej: Alemania" oninput="renderFF()"></div>
+      <div class="field"><label>2° lugar del grupo</label><input type="text" id="ff-2" placeholder="Ej: Colombia" oninput="renderFF()"></div>
+      <button class="btn-download" onclick="dl('canvas-ff','Fixture_Futbol_Femenino_Fecha3.jpg')">Descargar JPG</button>
+    </div>
+    <div class="preview-wrap">
+      <h2>Vista previa</h2>
+      <div class="canvas-container"><canvas id="canvas-ff"></canvas></div>
+      <p class="hint">Actualiza en tiempo real mientras escribes</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// Imágenes referenciadas desde GitHub (raw) — sin Base64, archivo liviano
+const IMG_SRC = {
+  fm: 'futbol_maculino.jpg',
+  vl: 'voley.jpg',
+  pd: 'padel.jpg',
+  ff: 'futbol_femenino.jpg'
+};
+
+function switchTab(e, id) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  e.target.classList.add('active');
+  document.getElementById('panel-' + id).classList.add('active');
+}
+
+const imgCache = {};
+function loadImg(key) {
+  return new Promise(resolve => {
+    if (imgCache[key]) { resolve(imgCache[key]); return; }
+    const img = new Image();
+    img.crossOrigin = 'anonymous'; // necesario para toDataURL con imágenes externas
+    img.onload = () => { imgCache[key] = img; resolve(img); };
+    img.src = IMG_SRC[key];
+  });
+}
+
+function dl(id, name) {
+  const c = document.getElementById(id);
+  const a = document.createElement('a');
+  a.download = name; a.href = c.toDataURL('image/jpeg', 0.95); a.click();
+}
+
+function pillPath(ctx, cx, cy, w, h) {
+  const r = h / 2;
+  const x = cx - w/2, y = cy - h/2;
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x+w, y,   x+w, y+h, r);
+  ctx.arcTo(x+w, y+h, x,   y+h, r);
+  ctx.arcTo(x,   y+h, x,   y,   r);
+  ctx.arcTo(x,   y,   x+w, y,   r);
+  ctx.closePath();
+}
+
+// cx, cy: coordenadas en imagen real (4000x2250)
+// sx, sy: factores de escala canvas/imagen
+// customW: ancho en px de imagen real (default 230)
+// customColor: color borde+texto (default #ef601b)
+// customH: alto en px de imagen real (default 50)
+function drawPill(ctx, text, cx, cy, sx, sy, customW, customColor, customH) {
+  const pw    = (customW || 230) * sx;
+  const ph    = (customH || 50)  * sy;
+  const fs    = 38 * Math.min(sx, sy);
+  const color = customColor || '#ef601b';
+  const rx = cx * sx, ry = cy * sy;
+
+  ctx.save();
+  ctx.fillStyle = '#000A14';
+  pillPath(ctx, rx, ry, pw, ph);
+  ctx.fill();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.8 * Math.min(sx, sy);
+  pillPath(ctx, rx, ry, pw, ph);
+  ctx.stroke();
+  ctx.fillStyle = color;
+  ctx.font = '600 ' + fs + 'px "Segoe UI", Arial, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, rx, ry + 1);
+  ctx.restore();
+}
+
+// ── Fútbol Masculino
+// G.A(1300,1540) G.B(1600,1540) G.C(2400,1540) M.P(2700,1540) G1(1852,1602) G2(2148,1602)
+async function renderFM() {
+  const canvas = document.getElementById('canvas-fm');
+  const img = await loadImg('fm');
+  canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, 0, 0);
+  const sx = canvas.width/4000, sy = canvas.height/2250;
+  const v = id => document.getElementById(id).value.trim();
+
+  // Fútbol Masculino — alto personalizado (9no parámetro)
+  drawPill(ctx, v('fm-ga')||'G.A',  1300, 1540, sx, sy, undefined, undefined, 42);
+  drawPill(ctx, v('fm-gb')||'G.B',  1600, 1540, sx, sy, undefined, undefined, 42);
+  drawPill(ctx, v('fm-gc')||'G.C',  2400, 1540, sx, sy, undefined, undefined, 42);
+  drawPill(ctx, v('fm-mp')||'M.P',  2700, 1540, sx, sy, undefined, undefined, 42);
+  drawPill(ctx, v('fm-g1')||'G1',   1852, 1602, sx, sy, undefined, undefined, 42);
+  drawPill(ctx, v('fm-g2')||'G2',   2148, 1602, sx, sy, undefined, undefined, 42);
+}
+
+// ── Vóley Mixto
+// 1ºA(1555,1478) 2ºB(1862,1478) 1ºB(2132,1478) 2ºA(2444,1478) F1(1556,1539) F2(1865,1539)
+async function renderVL() {
+  const canvas = document.getElementById('canvas-vl');
+  const img = await loadImg('vl');
+  canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, 0, 0);
+  const sx = canvas.width/4000, sy = canvas.height/2250;
+  const v = id => document.getElementById(id).value.trim();
+
+  // Vóley Mixto — ancho personalizado (7mo parámetro)
+  drawPill(ctx, v('vl-1a')||'1ºA', 1555, 1478, sx, sy, 255);
+  drawPill(ctx, v('vl-2b')||'2ºB', 1862, 1478, sx, sy, 255, '#09bdd2');
+  drawPill(ctx, v('vl-1b')||'1ºB', 2132, 1478, sx, sy, 255, '#09bdd2');
+  drawPill(ctx, v('vl-2a')||'2ºA', 2444, 1478, sx, sy, 255);
+  drawPill(ctx, v('vl-f1')||'F1',  1556, 1539, sx, sy, 255);
+  drawPill(ctx, v('vl-f2')||'F2',  1865, 1539, sx, sy, 255);
+}
+
+// ── Pádel
+// 1ºA(1523,1565) 2ºB(1855,1565) 1ºB(2142,1565) 2ºA(2474,1565) F1(1523,1628) F2(1855,1628)
+async function renderPD() {
+  const canvas = document.getElementById('canvas-pd');
+  const img = await loadImg('pd');
+  canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, 0, 0);
+  const sx = canvas.width/4000, sy = canvas.height/2250;
+  const v = id => document.getElementById(id).value.trim();
+
+  // Pádel — ancho personalizado (7mo parámetro)
+  drawPill(ctx, v('pd-1a')||'1ºA', 1523, 1565, sx, sy, 260);
+  drawPill(ctx, v('pd-2b')||'2ºB', 1855, 1565, sx, sy, 260, '#09bdd2');
+  drawPill(ctx, v('pd-1b')||'1ºB', 2142, 1565, sx, sy, 260, '#09bdd2');
+  drawPill(ctx, v('pd-2a')||'2ºA', 2474, 1565, sx, sy, 260);
+  drawPill(ctx, v('pd-f1')||'F1',  1523, 1628, sx, sy, 260);
+  drawPill(ctx, v('pd-f2')||'F2',  1855, 1628, sx, sy, 260);
+}
+
+// ── Fútbol Femenino
+// 1°(1794,1507) 2°(2192,1507)
+async function renderFF() {
+  const canvas = document.getElementById('canvas-ff');
+  const img = await loadImg('ff');
+  canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, 0, 0);
+  const sx = canvas.width/4000, sy = canvas.height/2250;
+  const v = id => document.getElementById(id).value.trim();
+
+  // Fútbol Femenino — ancho (7mo) y alto (9no) personalizados
+  drawPill(ctx, v('ff-1')||'1°', 1794, 1507, sx, sy, 310, '#09bdd2', 65);
+  drawPill(ctx, v('ff-2')||'2°', 2192, 1507, sx, sy, 310, '#09bdd2', 65);
+}
+
+window.addEventListener('load', () => { renderFM(); renderVL(); renderPD(); renderFF(); });
+</script>
+</body>
+</html>
