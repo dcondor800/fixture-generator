@@ -188,7 +188,7 @@ function pillPath(ctx, cx, cy, w, h) {
 function drawPill(ctx, text, cx, cy, sx, sy, customW, customColor, customH) {
   const pw    = (customW || 230) * sx;
   const ph    = (customH || 50)  * sy;
-  const fs    = 38 * Math.min(sx, sy);
+  const fs    = 37 * Math.min(sx, sy);
   const color = customColor || '#ef601b';
   const rx = cx * sx, ry = cy * sy;
 
